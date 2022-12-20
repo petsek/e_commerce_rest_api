@@ -47,7 +47,7 @@ const deserializeUser = (id, cb) => {
 }
 
 const login = (request, response) => {
-  const {user} = request
+  const {user} = request.body
   response.json(user)
 }
 
