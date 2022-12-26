@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Products</title>
+  </head>
+  <body>
+    <h1>Products</h1>
+
+    <ul>
+      <% if (typeof errors != 'undefined') { %> <% errors.forEach(error => { %>
+      <li><%= error.message %></li>
+      <% }) %> <% } %>
+    </ul>
+
+    
+    <form action="/select_products" method="POST">
+      <div>
+        <input type="number" id="productId" name="productId" placeholder="Product Id" required />
+      </div>
+      <div>
+        <input type="number" id="quantity" name="quantity" placeholder="Quantity" required />
+      </div>
+      
+      <div>
+        <input type="submit" value="Add product to cart" />
+      </div>
+
+      <a href="/carts/my_cart">My cart</a>
+      <a href="/users/login">To start shopping Login here</a>
+    </form>
+  </body>
+</html>
