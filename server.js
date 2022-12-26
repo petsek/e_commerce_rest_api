@@ -172,8 +172,8 @@ app.use('/products',productRouter);
 // Create cart when user clicks on "Continue Shopping"
 app.get('/create_cart',checkNotAuthenticated, (req, res) => { 
   const userId = req.user.user_id
-    pool.query(`INSERT INTO carts (user_id) VALUES ($1, $2) RETURNING *`, [userId], (err, result) => {
-      if (err) {
+    pool.query(`INSERT INTO carts (user_id) VALUES ($1) RETURNING *`, [userId], (err, result) => {
+      if (err) {npm 
         throw err
       }
       const cart = result.rows[0];
@@ -186,7 +186,7 @@ app.get('/select_products',checkNotAuthenticated, (req, res) => {
       res.render('products');
 })
 
-app.post('/select_products', (req, res) => {
+app.post('/select_products',checkNotAuthenticated, (req, res) => {
     const {productId, quantity} = req.body;
     const cartId = req.user.cart_id
     pool.query('INSERT INTO cart_items (product_id, quantity, cart_id) VALUES ($1, $2, $3) RETURNING *', [productId, quantity, cartId], (error, results) => {
