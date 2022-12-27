@@ -58,6 +58,9 @@ app.get('/', (request, response) => {
   response.render('index')
 });
 
+
+// User routes
+
 app.get('/users/register', checkAuthenticated, (req, res) => {
   res.render('register');
 });
@@ -141,7 +144,7 @@ app.post('/users/register', async (req, res) => {
 app.post(
   "/users/login",
   passport.authenticate("local", {
-    successRedirect: "/users/dashboard",
+    successRedirect: "/carts/create_cart",
     failureRedirect: "/users/login",
     failureFlash: true
   })
@@ -166,18 +169,17 @@ function checkNotAuthenticated(req, res, next) {
 const productRouter = require('./Routes/productR');
 app.use('/products',productRouter);
 
-// Cart- product routes
+// Cart routes
 
-
-// Create cart when user clicks on "Continue Shopping"
-app.get('/create_cart',checkNotAuthenticated, (req, res) => { 
+// Create cart follwoing user login
+app.get('/carts/create_cart',checkNotAuthenticated, (req, res) => { 
   const userId = req.user.user_id
-    pool.query(`INSERT INTO carts (user_id) VALUES ($1) RETURNING *`, [userId], (err, result) => {
+    pool.query(`INSERT INTO carts (user_id, created) VALUES ($1, $2) RETURNING *`, [userId, moment.utc().toISOString()], (err, result) => {
       if (err) {npm 
         throw err
       }
       const cart = result.rows[0];
-      res.redirect("/select_products");
+      res.redirect("/users/dashboard");
     })
 })
 
@@ -186,6 +188,7 @@ app.get('/select_products',checkNotAuthenticated, (req, res) => {
       res.render('products');
 })
 
+// Add product into cart_items with session's cart_id
 app.post('/select_products',checkNotAuthenticated, (req, res) => {
     const {productId, quantity} = req.body;
     const cartId = req.user.cart_id
@@ -197,6 +200,7 @@ app.post('/select_products',checkNotAuthenticated, (req, res) => {
     })
   });
 
+  // Get all cart_items in cart
 app.get('/carts/my_cart',checkNotAuthenticated, (req, res) => { 
   const cartId = req.user.cart_id
     pool.query(`SELECT * FROM cart_items WHERE cart_id =$1`, [cartId], (err, results) => {
@@ -206,6 +210,39 @@ app.get('/carts/my_cart',checkNotAuthenticated, (req, res) => {
       res.status(201).send(results.rows)
     })
 })
+
+// Order routes
+
+// Create order and then create new cart
+
+app.get('/orders/create_order',checkNotAuthenticated, (req, res) => { 
+  const cartId = req.user.cart_id
+    pool.query('INSERT INTO orders (cart_id, created) VALUES ($1, $2) RETURNING *', [cartId, moment.utc().toISOString()], (err, results) => {
+      if (err) {
+        throw err
+      }
+      res.redirect('/carts/create_cart')
+    })
+})
+
+// GET orders and details for user
+app.get('/orders/my_orders',checkNotAuthenticated, (req, res) => { 
+  const userId = req.user.user_id
+    pool.query(`
+    SELECT orders.order_id, products.name, products.description, SUM(cart_items.quantity) AS "order quantity",
+    SUM(cart_items.quantity * products.price) AS "total item cost" 
+    FROM orders, products, cart_items, carts
+    WHERE orders.cart_id = carts.cart_id AND carts.user_id = $1 AND carts.cart_id = cart_items.cart_id
+    AND cart_items.product_id = products.product_id
+    GROUP BY 1,2,3
+    `, [userId], (err, results) => {
+      if (err) {
+        throw err
+      }
+      res.status(201).send(results.rows)
+    })
+})
+
 
 app.listen(port, () => {
   console.log(`App running on ${port}`)

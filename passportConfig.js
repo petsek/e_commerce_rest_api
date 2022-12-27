@@ -61,7 +61,7 @@ function initialize(passport) {
   // The fetched object is attached to the request object as req.user
 
   passport.deserializeUser((id, done) => {
-    pool.query(`SELECT * FROM users JOIN carts ON users.user_id = $1 AND users.user_id = carts.user_id ORDER BY carts.cart_id DESC`, [id], (err, results) => {
+    pool.query(`SELECT * FROM users, carts WHERE users.user_id = $1 ORDER BY carts.cart_id DESC`, [id], (err, results) => {
       if (err) {
         return done(err);
       }
