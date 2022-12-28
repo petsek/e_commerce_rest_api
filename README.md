@@ -6,7 +6,7 @@ Node/Express REST API demosntrates the backend operations of an e-commerce web a
 
 ## Features
 
-* Node/Express API connected to PostgresSQL database
+* App is connected to PostgresSQL database
 * Users can register, log-in and log-out
 * Session is created upon customer login and a cart is also added to the session for a user follwoing log-in
 * CRUD operations on products
