@@ -1,4 +1,4 @@
-# E-Commerce Rest Api - Backend
+# E-Commerce Rest API - Backend
 
 ## Description
 
