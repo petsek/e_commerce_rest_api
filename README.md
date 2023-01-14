@@ -23,7 +23,7 @@ The project requires a PostgreSQL database to run locally. In command line: npm 
 
 * JavaScript
 * Express
-* Node
+* Node.js
 * PostgresSQL
 * Git and GitHub
 * Command Line
